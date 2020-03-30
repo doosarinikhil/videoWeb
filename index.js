@@ -204,124 +204,7 @@ function connect() {
     socket.emit('login', currentuser.name);
 }
 
-socket.on('connect', function (data) {
-    console.log(data);
-    console.log('connected');
-    socket.emit('login', currentuser.name);
-});
 
-socket.on('login', function (data) {
-    console.log('connection successfully');
-    connected = true;
-    // Display the welcome message
-    var message = "Welcome to Socket.IO Chat â€“ ";
-});
-
-socket.on('disconnect', function () {
-    console.log('you have been disconnected');
-});
-
-socket.on('reconnect', function () {
-    console.log('you have been reconnected');
-    socket.emit('login', currentuser.name);
-});
-
-socket.on('reconnect_error', function () {
-    console.log('attempt to reconnect has failed');
-});
-
-socket.on('online', function (data) {
-    console.log(data);
-    console.log('user online ' + data);
-});
-
-socket.on('offline', function (data) {
-    console.log(data);
-    console.log('user offline ' + data);
-});
-
-socket.on('message', function (data) {
-
-    switch (data.message.type) {
-        case 'presence':
-            {
-
-            }
-            break;
-        case 'chatreq':
-            {
-                if (currentuser.username != data.from) {
-                    chatreq('chatreq', data);
-
-                }
-
-            }
-            break;
-        case 'chatreqaccepted':
-            {
-                chatreqaccepted('chatreqaccepted', data);
-
-            }
-            break;
-        case 'rejectchatreq':
-            {
-                rejectchatreq('rejectchatreq', data.message);
-
-            }
-            break;
-
-        case "videocallreq":
-            {
-                isVideo = true;
-
-                if (isInitiator != true) {
-                    getUserMedia();
-                }
-            }
-            break;
-        case "accepted":
-            {
-                if (isInitiator == true) {
-                    console.log("accepted");
-                    makeOffer();
-                }
-            }
-            break;
-        case "offer":
-            {
-                if (isInitiator != true) {
-                    console.log("offer");
-                    setoffer(data.message.message);
-                }
-            }
-            break;
-        case "answer":
-            {
-                if (isInitiator == true) {
-                    console.log("answer");
-                    setAnswer(data.message.message);
-                }
-            }
-            break;
-        case "candidate":
-            {
-                console.log("candidate"); console.log(data);
-
-                addIceCandidate(data.message.message);
-            }
-            break;
-        case "endVideoCall":
-            {
-                console.log("endVideoCall");
-                releasemedia();
-
-            }
-            break;
-
-    }
-
-    console.log(data);
-});
 function hangup() {
     sendio(selecteduser.name, currentuser.name, '', "endVideoCall");
     releasemedia();
@@ -350,44 +233,148 @@ function videoInit(options) {
     socket = io(options.url);
     configuration.iceServers = options.iceServers;
     login(options.uid);
+    socket.on('connect', function (data) {
+        console.log(data);
+        console.log('connected');
+        socket.emit('login', currentuser.name);
+    });
+    
+    socket.on('login', function (data) {
+        console.log('connection successfully');
+        connected = true;
+        // Display the welcome message
+        var message = "Welcome to Socket.IO Chat â€“ ";
+    });
+    
+    socket.on('disconnect', function () {
+        console.log('you have been disconnected');
+    });
+    
+    socket.on('reconnect', function () {
+        console.log('you have been reconnected');
+        socket.emit('login', currentuser.name);
+    });
+    
+    socket.on('reconnect_error', function () {
+        console.log('attempt to reconnect has failed');
+    });
+    
+    socket.on('online', function (data) {
+        console.log(data);
+        console.log('user online ' + data);
+    });
+    
+    socket.on('offline', function (data) {
+        console.log(data);
+        console.log('user offline ' + data);
+    });
+    
+    socket.on('message', function (data) {
+    
+        switch (data.message.type) {
+            case 'presence':
+                {
+    
+                }
+                break;
+            case 'chatreq':
+                {
+                    if (currentuser.username != data.from) {
+                        chatreq('chatreq', data);
+    
+                    }
+    
+                }
+                break;
+            case 'chatreqaccepted':
+                {
+                    chatreqaccepted('chatreqaccepted', data);
+    
+                }
+                break;
+            case 'rejectchatreq':
+                {
+                    rejectchatreq('rejectchatreq', data.message);
+    
+                }
+                break;
+    
+            case "videocallreq":
+                {
+                    isVideo = true;
+    
+                    if (isInitiator != true) {
+                        getUserMedia();
+                    }
+                }
+                break;
+            case "accepted":
+                {
+                    if (isInitiator == true) {
+                        console.log("accepted");
+                        makeOffer();
+                    }
+                }
+                break;
+            case "offer":
+                {
+                    if (isInitiator != true) {
+                        console.log("offer");
+                        setoffer(data.message.message);
+                    }
+                }
+                break;
+            case "answer":
+                {
+                    if (isInitiator == true) {
+                        console.log("answer");
+                        setAnswer(data.message.message);
+                    }
+                }
+                break;
+            case "candidate":
+                {
+                    console.log("candidate"); console.log(data);
+    
+                    addIceCandidate(data.message.message);
+                }
+                break;
+            case "endVideoCall":
+                {
+                    console.log("endVideoCall");
+                    releasemedia();
+    
+                }
+                break;
+    
+        }
+    
+        console.log(data);
+    });
 }
+
 function startCall(id) {
     selecteduser.name = id;
+    console.log(" calll to",id)
     sendchatrequest();
 }
 
 
 // chat request received here you need ti handle  reject or accept 
 function chatreq(event, obj) {
-    console.log(obj);
-    console.log("chatreq");
-    $('#chatrequest').show();
-    $("#btn-accept").click(function () {
         isChatreq = true;
-        $('#chatrequest').hide();
         sendio(obj.from, currentuser.name, '', "chatreqaccepted");
         selecteduser.name = obj.from;
         setTimeout(function () {
             selecteduser.name = obj.from;
-
         }, 10);
-    });
-    $("#btn-reject").unbind("click").click(function () {
-        $('#chatrequest').hide();
-        sendio(obj.from, currentuser.name, '', "rejectchatreq");
-    });
-
-
 }
 
 
 // if chat request accepted event came here you need to handle for ready for video view
 function chatreqaccepted(event, obj) {
-    console.log("chatreqaccepted");
     setTimeout(function () {
-        //selecteduser.username=obj.from;
-        outboundVideocall();
-        //redirectToChatscreen(contacts[selected].username);   
+        outboundVideocall();  
     }, 10);
 }
 
@@ -396,9 +383,6 @@ function rejectchatreq(event, obj) {
     console.log("rejectchatreq");
     selecteduser = {};
     isChatreq = false;
-    //hideInProgressMessage();
-    alert('Chat request rejected!.');
-
 }
 
 function attachmediastream(pc) {

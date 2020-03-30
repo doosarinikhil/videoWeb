@@ -1,74 +1,88 @@
-					<html>
- <head>
-   <title>Video Demo</title>
-   
-   <link rel = "stylesheet" href = "https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
- </head>
- <style>
-   body {
+<html>
+
+<head>
+  <title>Video Demo</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+</head>
+<style>
+  body {
     background: #eee;
     padding: 5% 0;
-   }
-   video {
+  }
+
+  video {
     background: black;
     border: 1px solid gray;
-   }
-   .call-page {
+  }
+
+  .call-page {
     position: relative;
     display: block;
     margin: 0 auto;
     width: 500px;
     height: 500px;
-   }
-   #localVideo {
+  }
+
+  #localVideo {
     width: 150px;
     height: 150px;
     position: absolute;
     top: 15px;
     right: 15px;
-   }
-   #remoteVideo {
+  }
+
+  #remoteVideo {
     width: 500px;
     height: 500px;
-   }
- </style>
- <body>
- <div id = "loginPage" class = "container text-center">
-   <div class = "row">
-    <div class = "col-md-4 col-md-offset-4">
-      <h2>Video Demo. Please sign in</h2>
-      <label for = "usernameInput" class = "sr-only">Login</label>
-      <input type = "email" id = "usernameInput" c
-       lass = "form-control formgroup" placeholder = "Login"
-       required = "" autofocus = "">
-      <button id = "loginBtn" class = "btn btn-lg btn-primary btnblock" onclick="login()">
-       Sign in</button>
+  }
+</style>
+
+<body>
+  <div id="callPage" class="call-page" >
+    <video id="localVideo" autoplay></video>
+    <video id="remoteVideo" autoplay></video>
+    <div class="row text-center">
+      <div class="col-md-12">
+        <button id="hangUpBtn" class="btn-danger btn" onclick='hangup()'>Hang Up</button>
+      </div>
     </div>
-   </div>
- </div>
- <div id="chatrequest" style="display:none">
-	<h3>Incoming call </h3>
-	<button id="btn-accept">Accept</button>
-	<button id="btn-reject">Reject</button>
- </div>
- <div id = "callPage" class = "call-page" style="display:none">
-   <video id = "localVideo" autoplay></video>
-   <video id = "remoteVideo" autoplay></video>
-   <div class = "row text-center">
-    <div class = "col-md-12">
-      <input id = "callToUsernameInput" type = "text"
-       placeholder = "username to call" />
-      <button id = "callBtn" class = "btn-success btn" onclick="calltouser()">Call</button>
-      <button id = "hangUpBtn" class = "btn-danger btn" onclick='sendendchat()' >Hang Up</button>
-    </div>
-   </div>
- </div>
- 
-					
-					<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
-					<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-					<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-					<script src="https://cdn.webrtc-experiment.com/common.js"></script>
-					<script src="index.js"></script>
-					</body>
-					</html>
+  </div>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdn.webrtc-experiment.com/common.js"></script>
+  <script src="index.js"></script>
+
+
+  <script>
+    function getParameterByName(name) {
+      name = name.replace(/[\[]/, '\\\[').replace(/[\]]/, '\\\]');
+      var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
+        results = regex.exec(location.search);
+      return results === null ? '' : decodeURIComponent(results[1].replace(
+        /\+/g, ' '));
+    }
+    var userId = null;
+    var toUserId = null;
+    userId = getParameterByName('userId');
+    if (userId) {
+      videoInit({
+        url: "https://join-staging-api1.telebu.com:8000",
+        iceServers: [
+          { urls: "stun:23.21.150.121" },
+          { urls: "stun:stun.l.google.com:19302" },
+        ],
+        uid: userId
+      });
+      toUserId = getParameterByName('toUserId')
+      if (toUserId) {
+        startCall(toUserId);
+      }
+    }
+  </script>
+</body>
+
+</html>
